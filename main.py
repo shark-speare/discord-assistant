@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
-import os
+from models.bot import Assistant
 from dotenv import load_dotenv
 import asyncio
+import os
 
 load_dotenv()
 
@@ -13,27 +14,11 @@ turn_on = ["dm_messages", "guild_messages", "message_content"]
 for permission in turn_on:
     setattr(intents, permission, True)
 
-bot = commands.Bot(
+bot = Assistant(
     command_prefix=command_prefix,
-    intents=intents
+    intents=intents,
+    token=os.environ["BOT_TOKEN"]
 )
 
-@bot.event
-async def on_ready():
-    print(f"登入為 {bot.user}")
-
-    print("已註冊指令")
-    for cmd in bot.commands:
-        print(f"\t${cmd.name}", end=" ")
-    print("")
-
-async def load_ext():
-    for filename in os.listdir("./cmds"):
-        await bot.load_extension(f"cmds.{filename[:-3]}")
-
-async def main():
-    discord.utils.setup_logging()
-    await bot.start(os.environ["BOT_TOKEN"])
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(bot.main())
